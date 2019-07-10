@@ -1,10 +1,8 @@
 package canner
 
-import java.nio.file.{Files, Path, Paths}
+import java.nio.file.{Files, Paths}
 
-import org.scalacheck.Arbitrary
 import org.scalatest._
-import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks._
 
 class CannerTest extends FlatSpec with Matchers {
 

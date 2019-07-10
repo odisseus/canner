@@ -21,7 +21,10 @@ object Zipper {
     )
     val result = zip.entries.toList.sorted.traverse { case (name, source) =>
       Try {
-        Files.copy(source, fs.getPath("/").resolve(name), StandardCopyOption.REPLACE_EXISTING)
+        val destination = fs.getPath("/").resolve(name)
+        if(!(Files.isDirectory(source) && Files.isDirectory(destination))){
+          Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING)
+        }
       }
     }.map{ _ => destination }
     fs.close()
@@ -31,7 +34,7 @@ object Zipper {
   def pack(root: Path, destination: Path): Try[Path] = {
     val paths = if(Files.isDirectory(root)){
       val pathWalker = Files.walk(root)
-      val toPack = pathWalker.collect(Collectors.toList[Path]).asScala.toList//.tail
+      val toPack = pathWalker.collect(Collectors.toList[Path]).asScala.toList
       pathWalker.close()
       toPack
     } else List(root)

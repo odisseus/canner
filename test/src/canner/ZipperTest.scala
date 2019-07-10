@@ -55,8 +55,8 @@ class ZipperTest extends FlatSpec with Matchers {
   }
 
   it should "merge two directories" in {
-    val source1 = resources.resolve("foo_zip")
-    val source2 = resources.resolve("baz_zip")
+    val source1 = resources.resolve("foo_zip/foo")
+    val source2 = resources.resolve("baz_zip/foo")
     val target = Files.createTempDirectory("zipper-test-")
     val archive = target.resolve("foo+baz.zip")
     Zipper.pack(source1, archive).get
@@ -64,12 +64,12 @@ class ZipperTest extends FlatSpec with Matchers {
     val unpacked = target.resolve("unpacked")
     Zipper.unpack(archive, unpacked).get
     val expected = Files.createDirectories(resources.resolve("foo+baz"))
-    diff(expected, unpacked.resolve("foo_zip")) shouldBe 0
+    diff(expected, unpacked) shouldBe 0
   }
 
   private def diff(a: Path, b: Path): Int = {
     import sys.process._
-    val command = s"diff $a $b"
+    val command = s"diff -r $a $b"
     println(command)
     command.!
   }
