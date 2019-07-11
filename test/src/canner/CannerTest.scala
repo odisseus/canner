@@ -15,9 +15,8 @@ class CannerTest extends FlatSpec with Matchers {
     val source = resources.resolve("hello")
     val target = Files.createTempDirectory("canner-test-")
     val jar = target.resolve("hello.jar")
-    val manifest = Canner.manifest(version = "1.0", classpath = Set.empty, mainClass = Some("hello.HelloWorld"))
+    val manifest = ManifestBuilder().mainClass("hello.HelloWorld").build
     Canner.packJar(Set(source), jar, manifest).get
-
     val command = s"java -jar $jar"
     println(command)
     command.!! shouldBe "Hello World!\n"
