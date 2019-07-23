@@ -11,6 +11,7 @@ import scala.util.Try
 
 import mercator._
 
+/** Creates and extracts ZIP archives. */
 object Zipper {
 
   private[canner] def packfs(zip: Zip, destination: Path): Try[Path] = {
@@ -31,6 +32,19 @@ object Zipper {
     result
   }
 
+  /** Packs the file or directory into a ZIP archive.
+    *
+    * If `root` is a directory, the entry paths of each file and directory are mapped relative to `root`,
+    * e. g. when the `root` directory is `"/a/b"`,
+    * the file `"/a/b/c"` will be packaged as a ZIP entry at `"/b/c"`.
+    *
+    * If the `destination` archive already exists, the contents from `root` will be added to it,
+    * overwriting any existing entries which have the same paths.
+    *
+    * @param root the file or directory to archive
+    * @param destination the path to the resulting archive
+    * @return the path to the resulting archive, or a `Failure` if the operation fails
+    */
   def pack(root: Path, destination: Path): Try[Path] = {
     val paths = if(Files.isDirectory(root)){
       val pathWalker = Files.walk(root)
@@ -44,6 +58,16 @@ object Zipper {
     }.toMap), destination)
   }
 
+  /** Unpacks the contents of a ZIP archive to the given path.
+    *
+    * For example, if an archive that contains files at `/a` and `/b/c` is to be unpacked into directory `x`,
+    * this will result in new files at paths `x/a` and `x/b/c`.
+    *
+    * @param source the archive to unpack
+    * @param destination where to put the unpacked files and directories.
+    * @return A `Zip` containing the list of unpacked entry names and the paths where they have been unpacked,
+    *         or a `Failure` if the operation fails
+    */
   def unpack(source: Path, destination: Path): Try[Zip] = {
     for{
       zipFile  <- Try(new ZipFile(source.toFile))
@@ -82,9 +106,20 @@ object Zipper {
 
 }
 
+/** A data structure which contains `Path`s in the file system, paired with the ZIP entry names.
+  * It can be used to assemble an archive from sources in different locations.
+  *
+  * @param entries a map of source paths, indexed by the names of their corresponding ZIP entries.
+  */
 case class Zip(entries: Map[String, Path] = Map.empty){
   def and(source: Path, name: String): Zip = Zip(entries + (name -> source))
   def merge(other: Zip): Zip = Zip(entries ++ other.entries)
+
+  /** Packages the source files and directories with their corresponding entry names into a ZIP archive.
+    *
+    * @param destination the path to the resulting archive. If the archive already exists, it will be updated.
+    * @return the path to the resulting archive, or a `Failure` if the operation fails
+    */
   def writeTo(destination: Path): Try[Path] = Zipper.packfs(this, destination)
 }
 
