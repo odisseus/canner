@@ -47,8 +47,11 @@ class ZipperTest extends FlatSpec with Matchers {
         val unpacked = createTempDirectory("zipper-test-unpacked-")
         val archive = base.resolve(source.getFileName.toString + "-packed.zip")
         Zipper.pack(source, archive).get
-        Zipper.unpack(archive, unpacked).get
+        val record = Zipper.unpack(archive, unpacked).get
+        val archive2 = base.resolve(source.getFileName.toString + "-repacked.zip")
+        record.writeTo(archive2).get
         diff(source.getParent, unpacked) shouldBe 0
+        diff(archive, archive2) shouldBe 0
       }
     }
   }
