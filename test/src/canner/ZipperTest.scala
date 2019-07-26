@@ -25,8 +25,10 @@ class ZipperTest extends FlatSpec with Matchers {
     val archive = target.resolve("bar.txt.zip")
     Zipper.pack(source, archive).get
     val unpacked = target.resolve("unpacked")
-    Zipper.unpack(archive, unpacked).get
-    diff(source, unpacked.resolve("bar.txt")) shouldBe 0
+    val record = Zipper.unpack(archive, unpacked).get
+    val unpackedFile = unpacked.resolve("bar.txt")
+    record shouldBe Zip(Map(source.getFileName.toString -> unpackedFile))
+    diff(source, unpackedFile) shouldBe 0
   }
 
   it should "zip and unzip a directory" in {

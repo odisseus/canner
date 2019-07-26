@@ -74,21 +74,25 @@ object Zipper {
       zipEntries = zipFile.entries().asScala.toList
       entries <- zipEntries.traverse{ zipEntry =>
         val name = zipEntry.getName
-        val in = zipFile.getInputStream(zipEntry)
-        val result = Try{
-          val target = destination.resolve(name)
-          if(name.endsWith("/")){
-            Files.createDirectories(target)
-          } else{
-            Files.createDirectories(target.getParent)
-            Files.copy(in, target, java.nio.file.StandardCopyOption.REPLACE_EXISTING)
-          }
-          (name, target)
-        }
-        in.close()
-        result
+        val target = destination.resolve(name)
+        extract(zipFile, zipEntry, target).map(name -> _)
       }
     } yield Zip(entries.toMap)
+  }
+
+  private def extract(source: ZipFile, entry: ZipEntry, destination: Path): Try[Path] = {
+    val in = source.getInputStream(entry)
+    val result = Try{
+      if(entry.isDirectory){
+        Files.createDirectories(destination)
+      } else{
+        Files.createDirectories(destination.getParent)
+        Files.copy(in, destination, java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+      }
+      destination
+    }
+    in.close()
+    result
   }
 
   private class ZippingFileVisitor(sourcePath: Path, out: ZipOutputStream) extends SimpleFileVisitor[Path] {
