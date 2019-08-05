@@ -58,6 +58,12 @@ class ZipperTest extends FlatSpec with Matchers {
     }
   }
 
+  it should "extract a single file from an archive" in {
+    val target = createTempDirectory("zipper-test-").resolve("baz.txt")
+    Zipper.extract(resources.resolve("foo.zip"), "foo/bar.txt", target).get
+    diff(resources.resolve("foo_zip/foo/bar.txt"), target) shouldBe 0
+  }
+
   it should "merge two directories" in {
     val source1 = resources.resolve("foo_zip/foo")
     val source2 = resources.resolve("baz_zip/foo")
