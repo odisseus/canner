@@ -19,6 +19,9 @@ schemas	default	id	default
 						binaries	
 						resources	
 						bloopSpec	None
+						environment	
+						properties	
+						policy	
 					test	id	test
 						kind	Application
 						main	Some	canner.Tests
@@ -44,6 +47,38 @@ schemas	default	id	default
 								version	3.0.8
 						resources	
 						bloopSpec	None
+						environment	
+						properties	
+						policy	java.io.FilePermission ${java.io.tmpdir}/- read,write,delete	className	java.io.FilePermission
+								target	${java.io.tmpdir}/-
+								action	Some	read,write,delete
+							java.io.FilePermission . read	className	java.io.FilePermission
+								target	.
+								action	Some	read
+							java.io.FilePermission <<ALL FILES>> execute	className	java.io.FilePermission
+								target	<<ALL FILES>>
+								action	Some	execute
+							java.io.FilePermission test/resources/- read	className	java.io.FilePermission
+								target	test/resources/-
+								action	Some	read
+							java.lang.RuntimePermission createClassLoader -	className	java.lang.RuntimePermission
+								target	createClassLoader
+								action	None
+							java.lang.RuntimePermission setContextClassLoader -	className	java.lang.RuntimePermission
+								target	setContextClassLoader
+								action	None
+							java.util.PropertyPermission java.io.tmpdir read	className	java.util.PropertyPermission
+								target	java.io.tmpdir
+								action	Some	read
+							java.util.PropertyPermission scala.copyright.string read	className	java.util.PropertyPermission
+								target	scala.copyright.string
+								action	Some	read
+							java.util.PropertyPermission scala.version.number read	className	java.util.PropertyPermission
+								target	scala.version.number
+								action	Some	read
+							java.util.PropertyPermission user.dir read	className	java.util.PropertyPermission
+								target	user.dir
+								action	Some	read
 				main	Some	test
 				license	unknown
 				description	
@@ -72,6 +107,9 @@ schemas	default	id	default
 						bloopSpec	Some	org	scala-lang.org
 								name	scala-compiler
 								version	2.12.8
+						environment	
+						properties	
+						policy	
 				main	Some	compiler
 				license	unknown
 				description	

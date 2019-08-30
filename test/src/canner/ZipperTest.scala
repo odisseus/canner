@@ -73,7 +73,7 @@ class ZipperTest extends FlatSpec with Matchers {
     Zipper.pack(source2, archive).get
     val unpacked = target.resolve("unpacked")
     Zipper.unpack(archive, unpacked).get
-    val expected = createDirectories(resources.resolve("foo+baz"))
+    val expected = resources.resolve("foo+baz")
     diff(expected, unpacked) shouldBe 0
   }
 
